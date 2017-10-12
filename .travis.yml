@@ -1,5 +1,8 @@
 language: python
 python: 3.6
+branches:
+  only:
+  - master
 script: echo "Deploying"
 addons:
   artifacts: true
