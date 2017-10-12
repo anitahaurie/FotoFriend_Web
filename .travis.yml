@@ -1,0 +1,9 @@
+language: python
+python: 3.6
+script: echo "Deploying"
+deploy:
+  provider: elasticbeanstalk
+  region: 'us-west-2'
+  app: "FotoFriend"
+  env: "FotoFriend-Web"
+  bucket_name: "foto-friend-web"
