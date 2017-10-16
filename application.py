@@ -11,6 +11,7 @@ from oauth2client import client
 application = flask.Flask(__name__)
 Bootstrap(application)
 api = Api(application)
+application.secret_key = str(uuid.uuid4())
 
 def authenticate():
     #If no credentials, prompt for info
@@ -60,6 +61,5 @@ api.add_resource(oAuth, '/oAuth')
 api.add_resource(Home, '/Home')
 
 if __name__ == '__main__':
-    application.secret_key = str(uuid.uuid4())
     application.debug = False
     application.run()
