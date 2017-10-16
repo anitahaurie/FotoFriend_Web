@@ -2,3 +2,9 @@ flask
 flask-api
 flask-restful
 flask-bootstrap
+apiclient
+google-api-python-client
+httplib2
+oauth2client
+uritemplate
+urllib3
