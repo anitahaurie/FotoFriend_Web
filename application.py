@@ -4,7 +4,6 @@ import uuid
 
 from flask_restful import Resource, Api
 from flask_bootstrap import Bootstrap
-
 from apiclient import discovery
 from oauth2client import client
 
@@ -43,6 +42,13 @@ class oAuth(Resource):
         flask.session['credentials'] = credentials.to_json()
         return flask.redirect(flask.url_for('index'))
 
+class LogOut(Resource):
+    def get(self):
+        if 'credentials' in flask.session:
+            del flask.session['credentials']
+
+        return flask.redirect(flask.url_for('index'))
+
 class Home(Resource):
     def get(self):
         authenticate()
@@ -58,7 +64,8 @@ class Home(Resource):
 
 api.add_resource(Index, '/')
 api.add_resource(oAuth, '/oAuth')
-api.add_resource(Home, '/Home')
+api.add_resource(LogOut, '/logout')
+api.add_resource(Home, '/home')
 
 if __name__ == '__main__':
     application.debug = False
