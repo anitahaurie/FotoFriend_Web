@@ -1,0 +1,10 @@
+<div class="tags" id="tags">
+{% for tag in tags %}
+<div class="none">
+{{tag}}
+<button type="button" class="close" aria-label="Close" onclick="remove(this)">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+{% endfor %}
+</div>

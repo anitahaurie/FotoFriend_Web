@@ -62,10 +62,22 @@ class Home(Resource):
 
         return flask.make_response(flask.render_template("home.html", userEmail=user))
 
+class Search(Resource):
+    def get(self):
+        keywords = flask.request.args.getlist("keyword")
+
+        tag_list = []
+        for keyword in keywords:
+            tag_list.append(keyword)
+
+        return flask.render_template('tags.html', tags=tag_list)
+
+
 api.add_resource(Index, '/')
 api.add_resource(oAuth, '/oAuth')
 api.add_resource(LogOut, '/logout')
 api.add_resource(Home, '/home')
+api.add_resource(Search, '/search')
 
 if __name__ == '__main__':
     application.debug = False

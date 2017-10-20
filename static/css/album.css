@@ -90,3 +90,49 @@ footer {
 .glyphicon-log-out:before {
     content: "\e163";
 }
+
+.glyphicon-search:before {
+    content: "\e003";
+}
+
+.form-control {
+    border-color: #11987a;
+}
+
+/* Custom default button */
+.btn-search,
+.btn-search:hover,
+.btn-search:focus {
+    color: #fff;
+    text-shadow: none; /* Prevent inheritance from `body` */
+    background-color: #11987a;
+    border-color: #11987a;
+}
+
+.custom-search-form {
+    padding: 0.5rem 1rem;
+}
+
+.tags div {
+    display: inline-block;
+    color: #FFF !important;
+    background: #11987a;
+    -webkit-box-shadow: 0 1px 1px 0 rgba(180,180,180,0.1);
+    box-shadow: 0 1px 1px 0 rgba(180,180,180,0.1);
+    -webkit-transition: all .1s ease-in-out;
+    -moz-transition: all .1s ease-in-out;
+    -o-transition: all .1s ease-in-out;
+    -ms-transition: all .1s ease-in-out;
+    transition: all .1s ease-in-out;
+    border-radius: 2px;
+    margin: 0 3px 6px 0;
+    padding: 5px 10px
+}
+
+.close {
+    color: #FFF;
+    text-shadow: none;
+    font-size: inherit;
+    margin-left: 0.5rem;
+    margin-top: 0.25rem;
+}
