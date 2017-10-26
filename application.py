@@ -1,6 +1,7 @@
 import flask
 import httplib2
 import uuid
+import http.client
 
 from flask_restful import Resource, Api
 from flask_bootstrap import Bootstrap
@@ -11,6 +12,9 @@ application = flask.Flask(__name__)
 Bootstrap(application)
 api = Api(application)
 application.secret_key = str(uuid.uuid4())
+
+# For cloud server
+http_server = "fotofriendserver.us-west-2.elasticbeanstalk.com"
 
 def authenticate():
     #If no credentials, prompt for info
@@ -60,7 +64,23 @@ class Home(Resource):
         about = drive.about().get().execute()
         user = about['user']['emailAddress']
 
-        return flask.make_response(flask.render_template("home.html", userEmail=user))
+        # Connect HTTP
+        conn = http.client.HTTPConnection(http_server)
+
+        # Make request
+        conn.request("GET", "/")
+
+        # Get response
+        try:
+            response = conn.getresponse()
+            response = response.read()
+        except:
+            response = ""
+
+        # Close connection
+        conn.close()
+
+        return flask.make_response(flask.render_template("home.html", userEmail=user, serverResponse=response))
 
 class Search(Resource):
     def get(self):
