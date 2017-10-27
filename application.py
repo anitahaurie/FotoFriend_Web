@@ -9,6 +9,7 @@ from flask_restful import Resource, Api
 from flask_bootstrap import Bootstrap
 from apiclient import discovery
 from oauth2client import client
+from flask import send_from_directory
 
 UPLOAD_FOLDER = '' #Location depends where the photos will stored
                     #May be on EC2 Server instance
@@ -105,7 +106,7 @@ def checkFileExtension(filename):
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 class Upload(Resource):
-    def get(self):
+    def post(self):
         
         if request.method == 'POST':
             #Check if POST request has it's File component
@@ -119,12 +120,17 @@ class Upload(Resource):
                 flash("No file was selected. Please try again")
                 return redirect(request.url)
             #Add the picture to the path where pictures will be stored
-            if file and allowed_file(file.filename):
+            if file and checkFileExtension(file.filename):
                 #Returns a secure version of the filename
                 filename = secure_filename(file.filename)
                 file.save(os.path,join(app.config['UPLOAD_FOLDER'], filename))
                 return redirect(url_for('uploaded_file', filename=filename))
         return flask.render_template("home.html")
+        #return "Upload is called!"
+
+class UploadedFile(Resource):
+    def uploaded_file(filename):
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 api.add_resource(Index, '/')
@@ -133,6 +139,7 @@ api.add_resource(LogOut, '/logout')
 api.add_resource(Home, '/home')
 api.add_resource(Search, '/search')
 api.add_resource(Upload, '/upload')
+api.add_resource(UploadedFile, '/uploads/<filename>')
 
 if __name__ == '__main__':
     application.debug = False
