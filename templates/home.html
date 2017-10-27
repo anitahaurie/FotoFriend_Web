@@ -45,7 +45,32 @@
         <h1 class="jumbotron-heading">{{userEmail}}</h1>
         <p class="lead text-muted">Something short and leading about the collection below—its contents, the creator, etc. Make it short and sweet, but not too short so folks don't simply skip over it entirely.</p>
         <p>
-          <a href="/upload" class="btn btn-primary">Upload an image</a>
+          <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#uploadImageModal">Upload an image</a>
+            <!-- Upload image modal (Popup window)-->
+            <div class="modal fade" id="uploadImageModal">
+              <div class="modal-dialog">
+                <div class="modal-content">
+
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title">Upload your image</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  </div>
+
+                  <!-- Form to upload an image -->
+                  <div class="modal-body">
+                    Modal body..
+                  </div>
+
+                  <!-- Modal footer -->
+                  <div class="modal-footer">
+                    <button href="/upload" type="button" class="btn btn-secondary" data-dismiss="modal">Upload</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
           <a href="#" class="btn btn-secondary">Delete an image</a>
         </p>
       </div>

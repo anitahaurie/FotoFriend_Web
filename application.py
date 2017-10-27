@@ -106,10 +106,25 @@ def checkFileExtension(filename):
 
 class Upload(Resource):
     def get(self):
+        
         if request.method == 'POST':
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
+            #Check if POST request has it's File component
+            if 'file' not in  request.files:
+                flash('No file part')
+                return redirect(request.url)
+            file = request.files['file']
+
+            #Check whether a file was selected
+            if file.filename == '':
+                flash("No file was selected. Please try again")
+                return redirect(request.url)
+            #Add the picture to the path where pictures will be stored
+            if file and allowed_file(file.filename):
+                #Returns a secure version of the filename
+                filename = secure_filename(file.filename)
+                file.save(os.path,join(app.config['UPLOAD_FOLDER'], filename))
+                return redirect(url_for('uploaded_file', filename=filename))
+        return flask.render_template("uploadImage.html")
 
 
 api.add_resource(Index, '/')
