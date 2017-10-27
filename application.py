@@ -2,13 +2,20 @@ import flask
 import httplib2
 import uuid
 import http.client
+import os
+from werkzeug.utils import secure_filename
 
 from flask_restful import Resource, Api
 from flask_bootstrap import Bootstrap
 from apiclient import discovery
 from oauth2client import client
 
+UPLOAD_FOLDER = '' #Location depends where the photos will stored
+                    #May be on EC2 Server instance
+ALLOWED_EXTENSIONS = set(['jpeg', 'jpg', 'png'])
+
 application = flask.Flask(__name__)
+application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 Bootstrap(application)
 api = Api(application)
 application.secret_key = str(uuid.uuid4())
@@ -92,9 +99,17 @@ class Search(Resource):
 
         return flask.render_template('tags.html', tags=tag_list)
 
+#Check whether the filename extension is allowed 
+def checkFileExtension(filename):
+    return '.' in filename and 
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 class Upload(Resource):
     def get(self):
-        
+        if request.method == 'POST':
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
 
 
 api.add_resource(Index, '/')
