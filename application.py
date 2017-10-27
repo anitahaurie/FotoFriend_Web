@@ -124,7 +124,7 @@ class Upload(Resource):
                 filename = secure_filename(file.filename)
                 file.save(os.path,join(app.config['UPLOAD_FOLDER'], filename))
                 return redirect(url_for('uploaded_file', filename=filename))
-        return flask.render_template("uploadImage.html")
+        return flask.render_template("home.html")
 
 
 api.add_resource(Index, '/')
