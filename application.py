@@ -101,15 +101,16 @@ class Search(Resource):
 
 #Check whether the filename extension is allowed 
 def checkFileExtension(filename):
-    return '.' in filename and 
+    return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 class Upload(Resource):
     def get(self):
-        if request.method == 'POST':
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
+        return "It works!"
+        # if request.method == 'POST':
+        #     flash('No file part')
+        #     return redirect(request.url)
+        # file = request.files['file']
 
 
 api.add_resource(Index, '/')
