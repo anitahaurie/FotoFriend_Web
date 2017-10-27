@@ -106,11 +106,10 @@ def checkFileExtension(filename):
 
 class Upload(Resource):
     def get(self):
-        return "It works!"
-        # if request.method == 'POST':
-        #     flash('No file part')
-        #     return redirect(request.url)
-        # file = request.files['file']
+        if request.method == 'POST':
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
 
 
 api.add_resource(Index, '/')
