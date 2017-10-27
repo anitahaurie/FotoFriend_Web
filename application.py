@@ -92,12 +92,17 @@ class Search(Resource):
 
         return flask.render_template('tags.html', tags=tag_list)
 
+class Upload(Resource):
+    def get(self):
+        
+
 
 api.add_resource(Index, '/')
 api.add_resource(oAuth, '/oAuth')
 api.add_resource(LogOut, '/logout')
 api.add_resource(Home, '/home')
 api.add_resource(Search, '/search')
+api.add_resource(Upload, '/upload')
 
 if __name__ == '__main__':
     application.debug = False
