@@ -9,7 +9,7 @@ from flask_restful import Resource, Api
 from flask_bootstrap import Bootstrap
 from apiclient import discovery
 from oauth2client import client
-from flask import send_from_directory
+from flask import send_from_directory, request, flash, redirect
 
 UPLOAD_FOLDER = '' #Location depends where the photos will stored
                     #May be on EC2 Server instance
@@ -33,6 +33,15 @@ def authenticate():
     if credentials.access_token_expired:
         return flask.make_response(flask.render_template("index.html"))
     return flask.redirect(flask.url_for('home'))
+
+#Check whether the filename extension is allowed 
+def checkFileExtension(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 class Index(Resource):
     def get(self):
@@ -100,37 +109,39 @@ class Search(Resource):
 
         return flask.render_template('tags.html', tags=tag_list)
 
-#Check whether the filename extension is allowed 
-def checkFileExtension(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 class Upload(Resource):
-    def post(self):
-        
-        if request.method == 'POST':
-            #Check if POST request has it's File component
-            if 'file' not in  request.files:
-                flash('No file part')
-                return redirect(request.url)
-            file = request.files['file']
+	def post(self):
+		#Check if POST request has it's File component
+		#NOTE: The flash message should be embedded within the home html file to display status to user
+		if 'file' not in  request.files:
+			print('No file part')
+			flash('No file part')
+			return redirect(request.url)
 
-            #Check whether a file was selected
-            if file.filename == '':
-                flash("No file was selected. Please try again")
-                return redirect(request.url)
-            #Add the picture to the path where pictures will be stored
-            if file and checkFileExtension(file.filename):
-                #Returns a secure version of the filename
-                filename = secure_filename(file.filename)
-                file.save(os.path,join(app.config['UPLOAD_FOLDER'], filename))
-                return redirect(url_for('uploaded_file', filename=filename))
-        return flask.render_template("home.html")
-        #return "Upload is called!"
+		else:
+			file = request.files['file']
+
+		#Check whether a file was selected
+		if file.filename == '':
+			print("No file was selected. Please try again")
+			flash("No file was selected. Please try again")
+			return redirect(flask.url_for('home'))
+		
+		#Add the picture to the path where pictures will be stored
+		if file and checkFileExtension(file.filename):
+			#Returns a secure version of the filename
+			filename = secure_filename(file.filename)
+			file.save(os.path,join(app.config['UPLOAD_FOLDER'], filename))
+			#return redirect(url_for('uploaded_file', filename=filename))
+			return redirect(url_for('home'))
+
+# return flask.render_template("home.html")
 
 class UploadedFile(Resource):
-    def uploaded_file(filename):
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+	def get(self):
+		return uploaded_file()
+	def post(self):
+		return uploaded_file()
 
 
 api.add_resource(Index, '/')
