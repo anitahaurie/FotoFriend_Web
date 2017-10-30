@@ -134,8 +134,9 @@ class Upload(Resource):
 			file.save(os.path,join(app.config['UPLOAD_FOLDER'], filename))
 			#return redirect(url_for('uploaded_file', filename=filename))
 			return redirect(url_for('home'))
-
-# return flask.render_template("home.html")
+		else:
+			flash("Only jpeg, jpg and png files are supported. Please try again.")
+			return redirect(flask.url_for('home'))
 
 class UploadedFile(Resource):
 	def get(self):
