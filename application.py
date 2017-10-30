@@ -11,6 +11,7 @@ from apiclient import discovery
 from oauth2client import client
 from flask import send_from_directory, request, flash, redirect
 
+#UPLOAD_FOLDER ='C:\\Users\\David\\Desktop\\Photos' #Test
 UPLOAD_FOLDER = '' #Location depends where the photos will stored
                     #May be on EC2 Server instance
 ALLOWED_EXTENSIONS = set(['jpeg', 'jpg', 'png'])
@@ -131,9 +132,14 @@ class Upload(Resource):
 		if file and checkFileExtension(file.filename):
 			#Returns a secure version of the filename
 			filename = secure_filename(file.filename)
-			file.save(os.path,join(app.config['UPLOAD_FOLDER'], filename))
+			fileContents = file.read()
+
+			#The line below may be replaced with an HTTP request to EC2 Backend server
+			file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
 			#return redirect(url_for('uploaded_file', filename=filename))
-			return redirect(url_for('home'))
+			#When time comes, include the number of images successfully uploaded
+			flash("Your image was successfully uploaded!")
+			return redirect(flask.url_for('home'))
 		else:
 			flash("Only jpeg, jpg and png files are supported. Please try again.")
 			return redirect(flask.url_for('home'))
