@@ -142,10 +142,10 @@ class Upload(Resource):
 			#Send file to Backend Server
 			response = requests.post(backend_server, data=file)
 
-			if response != "":
-				flash("Your image was successfully uploaded!")
+			if response.content == "Your upload was successful!":
+				flash(response.content)
 			else:
-				flash("Something went wrong. Please try again.")
+				flash(response.content)
 			return redirect(flask.url_for('home'))
 		else:
 			flash("Only jpeg, jpg and png files are supported. Please try again.")
