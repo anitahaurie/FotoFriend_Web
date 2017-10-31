@@ -13,7 +13,6 @@ from flask import send_from_directory, request, flash, redirect
 
 #UPLOAD_FOLDER ='C:\\Users\\David\\Desktop\\Photos' #Test
 UPLOAD_FOLDER = '' #Location depends where the photos will stored
-                    #May be on EC2 Server instance
 ALLOWED_EXTENSIONS = set(['jpeg', 'jpg', 'png'])
 
 application = flask.Flask(__name__)
@@ -24,6 +23,9 @@ application.secret_key = str(uuid.uuid4())
 
 # For cloud server
 http_server = "fotofriendserver.us-west-2.elasticbeanstalk.com"
+
+#Backend server
+backend_server = ""
 
 def authenticate():
     #If no credentials, prompt for info
@@ -132,23 +134,34 @@ class Upload(Resource):
 		if file and checkFileExtension(file.filename):
 			#Returns a secure version of the filename
 			filename = secure_filename(file.filename)
-			fileContents = file.read()
 
-			#The line below may be replaced with an HTTP request to EC2 Backend server
-			file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
-			#return redirect(url_for('uploaded_file', filename=filename))
-			#When time comes, include the number of images successfully uploaded
-			flash("Your image was successfully uploaded!")
+			#Save file to a directory specified by UPLOAD_FOLDER
+			#file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
+
+			# Connect HTTP
+        	conn = http.client.HTTPConnection(backend_server)
+
+        	# Make request
+        	conn.request("POST", "/upload", file)
+
+        	# Get response
+        	try:
+            	response = conn.getresponse()
+            	response = response.read()
+        	except:
+            	response = ""
+
+        	# Close connection
+        	conn.close()
+
+			if response != "":
+				flash("Your image was successfully uploaded!")
+			else:
+				flash("Something went wrong. Please try again.")
 			return redirect(flask.url_for('home'))
 		else:
 			flash("Only jpeg, jpg and png files are supported. Please try again.")
 			return redirect(flask.url_for('home'))
-
-class UploadedFile(Resource):
-	def get(self):
-		return uploaded_file()
-	def post(self):
-		return uploaded_file()
 
 
 api.add_resource(Index, '/')
@@ -157,7 +170,6 @@ api.add_resource(LogOut, '/logout')
 api.add_resource(Home, '/home')
 api.add_resource(Search, '/search')
 api.add_resource(Upload, '/upload')
-api.add_resource(UploadedFile, '/uploads/<filename>')
 
 if __name__ == '__main__':
     application.debug = False
