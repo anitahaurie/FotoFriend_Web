@@ -25,8 +25,8 @@ application.secret_key = str(uuid.uuid4())
 # For cloud server
 http_server = "fotofriendserver.us-west-2.elasticbeanstalk.com"
 
-#Backend server
-backend_server = ""
+#For local server (Testing)
+#http_server = "127.0.0.1:80"
 
 def authenticate():
     #If no credentials, prompt for info
@@ -94,7 +94,7 @@ class Home(Resource):
         # Get response
         try:
             response = conn.getresponse()
-            response = response.read()
+            response = response.read().decode()
         except:
             response = ""
 
@@ -136,16 +136,21 @@ class Upload(Resource):
 			#Returns a secure version of the filename
 			filename = secure_filename(file.filename)
 
-			#Save file to a directory specified by UPLOAD_FOLDER
-			#file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
-
 			#Send file to Backend Server
-			response = requests.post(backend_server, data=file)
+			conn = http.client.HTTPConnection(http_server)
 
-			if response.content == "Your upload was successful!":
-				flash(response.content)
-			else:
-				flash(response.content)
+			conn.request('POST', '/storeImage', file)
+
+			try:
+				response = conn.getresponse()
+			except:
+				response = "Something went wrong."
+
+			conn.close()
+
+			if response.status == 200:
+				flash((response.read()).decode())
+
 			return redirect(flask.url_for('home'))
 		else:
 			flash("Only jpeg, jpg and png files are supported. Please try again.")
