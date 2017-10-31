@@ -2,18 +2,16 @@ import flask
 import httplib2
 import uuid
 import http.client
-import os
 import requests
+import os
 
 from flask_restful import Resource, Api
 from flask_bootstrap import Bootstrap
 from apiclient import discovery
 from oauth2client import client
-from flask import send_from_directory, request, flash, redirect
-from werkzeug.utils import secure_filename
 
-#UPLOAD_FOLDER ='C:\\Users\\David\\Desktop\\Photos' #Test
-UPLOAD_FOLDER = '' #Location depends where the photos will stored
+#UPLOAD_FOLDER ='C:\\Users\\thoma\\Documents' #Test
+UPLOAD_FOLDER = '\\tmp' #Location depends where the photos will stored
 ALLOWED_EXTENSIONS = set(['jpeg', 'jpg', 'png'])
 
 application = flask.Flask(__name__)
@@ -36,6 +34,15 @@ def authenticate():
     #If credentials are expired, prompt for info
     if credentials.access_token_expired:
         return flask.make_response(flask.render_template("index.html"))
+
+    # Save username in session
+    http_auth = credentials.authorize(httplib2.Http())
+    drive = discovery.build('drive', 'v2', http_auth)
+    about = drive.about().get().execute()
+    user = about['user']['emailAddress']
+    user = user.replace('@gmail.com', '')
+    flask.session['username'] = user
+
     return flask.redirect(flask.url_for('home'))
 
 #Check whether the filename extension is allowed 
@@ -44,8 +51,7 @@ def checkFileExtension(filename):
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
+    return flask.send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 class Index(Resource):
     def get(self):
@@ -55,8 +61,8 @@ class oAuth(Resource):
     def get(self):
       flow = client.flow_from_clientsecrets(
           'client_secret.json',
-          scope='https://www.googleapis.com/auth/drive',
-          redirect_uri=flask.url_for('oauth', _external=True))
+          scope = 'https://www.googleapis.com/auth/drive',
+          redirect_uri = flask.url_for('oauth', _external=True))
 
       if 'code' not in flask.request.args:
         auth_uri = flow.step1_get_authorize_url()
@@ -77,13 +83,7 @@ class LogOut(Resource):
 class Home(Resource):
     def get(self):
         authenticate()
-
-        credentials = client.OAuth2Credentials.from_json(flask.session['credentials'])
-
-        http_auth = credentials.authorize(httplib2.Http())
-        drive = discovery.build('drive', 'v2', http_auth)
-        about = drive.about().get().execute()
-        user = about['user']['emailAddress']
+        user = flask.session['username']
 
         # Connect HTTP
         conn = http.client.HTTPConnection(http_server)
@@ -114,48 +114,36 @@ class Search(Resource):
         return flask.render_template('tags.html', tags=tag_list)
 
 class Upload(Resource):
-	def post(self):
-		#Check if POST request has it's File component
-		#NOTE: The flash message should be embedded within the home html file to display status to user
-		if 'file' not in  request.files:
-			print('No file part')
-			flash('No file part')
-			return redirect(request.url)
+    def post(self):
+        #Check if POST request has it's File component
+        #NOTE: The flash message should be embedded within the home html file to display status to user
+        if 'file' not in flask.request.files:
+            flask.flash('No file part')
+            return flask.redirect(flask.request.url)
+        else:
+            file = flask.request.files['file']
 
-		else:
-			file = request.files['file']
+        #Check whether a file was selected
+        if file.filename == '':
+            flask.flash("No file was selected. Please try again")
+            return flask.redirect(flask.url_for('home'))
 
-		#Check whether a file was selected
-		if file.filename == '':
-			print("No file was selected. Please try again")
-			flash("No file was selected. Please try again")
-			return redirect(flask.url_for('home'))
-		
-		#Add the picture to the path where pictures will be stored
-		if file and checkFileExtension(file.filename):
-			#Returns a secure version of the filename
-			filename = secure_filename(file.filename)
+        #Add the picture to the path where pictures will be stored
+        if file and checkFileExtension(file.filename):
+            #Send file to Backend Server
+            file.save(os.path.join(application.config['UPLOAD_FOLDER'], file.filename))
 
-			#Send file to Backend Server
-			conn = http.client.HTTPConnection(http_server)
+            response = requests.post("http://%s/storeImage" % http_server, files={'file': open(os.path.join(application.config['UPLOAD_FOLDER'], file.filename), 'rb'), 'username': flask.session['username']})
 
-			conn.request('POST', '/storeImage', file)
+            os.remove(os.path.join(application.config['UPLOAD_FOLDER'], file.filename))
 
-			try:
-				response = conn.getresponse()
-			except:
-				response = "Something went wrong."
+            if response.status_code == 200:
+                flask.flash("Your upload was successful!")
 
-			conn.close()
-
-			if response.status == 200:
-				flash((response.read()).decode())
-
-			return redirect(flask.url_for('home'))
-		else:
-			flash("Only jpeg, jpg and png files are supported. Please try again.")
-			return redirect(flask.url_for('home'))
-
+            return flask.redirect(flask.url_for('home'))
+        else:
+            flask.flash("Only jpeg, jpg and png files are supported. Please try again.")
+            return flask.redirect(flask.url_for('home'))
 
 api.add_resource(Index, '/')
 api.add_resource(oAuth, '/oAuth')
