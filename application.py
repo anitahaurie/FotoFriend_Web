@@ -3,13 +3,14 @@ import httplib2
 import uuid
 import http.client
 import os
-from werkzeug.utils import secure_filename
+import requests
 
 from flask_restful import Resource, Api
 from flask_bootstrap import Bootstrap
 from apiclient import discovery
 from oauth2client import client
 from flask import send_from_directory, request, flash, redirect
+from werkzeug.utils import secure_filename
 
 #UPLOAD_FOLDER ='C:\\Users\\David\\Desktop\\Photos' #Test
 UPLOAD_FOLDER = '' #Location depends where the photos will stored
@@ -138,21 +139,8 @@ class Upload(Resource):
 			#Save file to a directory specified by UPLOAD_FOLDER
 			#file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
 
-			# Connect HTTP
-        	conn = http.client.HTTPConnection(backend_server)
-
-        	# Make request
-        	conn.request("POST", "/upload", file)
-
-        	# Get response
-        	try:
-            	response = conn.getresponse()
-            	response = response.read()
-        	except:
-            	response = ""
-
-        	# Close connection
-        	conn.close()
+			#Send file to Backend Server
+			response = requests.post(backend_server, data=file)
 
 			if response != "":
 				flash("Your image was successfully uploaded!")
