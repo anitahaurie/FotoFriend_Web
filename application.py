@@ -11,7 +11,7 @@ from apiclient import discovery
 from oauth2client import client
 
 #UPLOAD_FOLDER ='C:\\Users\\thoma\\Documents' #Test
-UPLOAD_FOLDER = '\\tmp' #Location depends where the photos will stored
+UPLOAD_FOLDER = 'tmp' #Location depends where the photos will stored
 ALLOWED_EXTENSIONS = set(['jpeg', 'jpg', 'png'])
 
 application = flask.Flask(__name__)
@@ -131,11 +131,11 @@ class Upload(Resource):
         #Add the picture to the path where pictures will be stored
         if file and checkFileExtension(file.filename):
             #Send file to Backend Server
-            file.save(os.path.join(application.config['UPLOAD_FOLDER'], file.filename))
+            file.save(os.path.join('~', application.config['UPLOAD_FOLDER'], file.filename))
 
             response = requests.post("http://%s/storeImage" % http_server, files={'file': open(os.path.join(application.config['UPLOAD_FOLDER'], file.filename), 'rb'), 'username': flask.session['username']})
 
-            os.remove(os.path.join(application.config['UPLOAD_FOLDER'], file.filename))
+            os.remove(os.path.join('~', application.config['UPLOAD_FOLDER'], file.filename))
 
             if response.status_code == 200:
                 flask.flash("Your upload was successful!")
