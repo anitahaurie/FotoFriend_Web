@@ -11,7 +11,7 @@ from apiclient import discovery
 from oauth2client import client
 
 #UPLOAD_FOLDER ='C:\\Users\\thoma\\Documents' #Test
-UPLOAD_FOLDER = '~' #Location depends where the photos will stored
+UPLOAD_FOLDER = '' #Location depends where the photos will stored
 ALLOWED_EXTENSIONS = set(['jpeg', 'jpg', 'png'])
 
 application = flask.Flask(__name__)
