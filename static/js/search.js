@@ -17,7 +17,9 @@ function search() {
         data: param,
         dataType: "json",
         success: function (response) {
-            $("#place_for_tags").html(response);
+            var $newHtml = $(response);
+            $("#place_for_tags").html($newHtml.find("#tagHTML").html());
+            $("#place_for_photos").html($newHtml.find("#photos").html());
         },
         error: function (response) {
             console.error(response);

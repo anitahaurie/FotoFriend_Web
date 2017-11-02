@@ -1,3 +1,5 @@
+<div>
+<div id="tagHTML">
 <div class="tags" id="tags">
 {% for tag in tags %}
 <div class="none">
@@ -7,4 +9,13 @@
 </button>
 </div>
 {% endfor %}
+</div>
+</div>
+<div id="photos">
+{% for link in linkList %}
+<div class="card">
+<img data-src="holder.js/100px280/thumb" src="{{link}}" style="height: 280px; width: 100%; display: block;" data-holder-rendered="false">
+</div>
+{% endfor %}
+</div>
 </div>

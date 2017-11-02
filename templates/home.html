@@ -19,7 +19,7 @@
   <body>
     <div class="navbar navbar-dark bg-dark">
       <div class="container d-flex justify-content-between">
-        <a href="#" class="navbar-brand">{{serverResponse}}</a>
+        <a href="#" class="navbar-brand">FotoFriend</a>
         <div>
             <a href="/logout" class="btn btn-secondary btn-sm float-right">
                 <span class="glyphicon glyphicon-log-out"></span> Log out
@@ -89,48 +89,18 @@
 
     <div class="album text-muted">
       <div class="container">
-
-        <div class="row">
-          <div class="card">
-            <img data-src="holder.js/100px280/thumb" alt="Card image cap">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+        {% if linkList %}
+          <div class="row" id="place_for_photos">
+              {% for link in linkList %}
+              <div class="card">
+                  <img data-src="holder.js/100px280/thumb" src="{{link}}" style="height: 280px; width: 100%; display: block;" data-holder-rendered="false">
+              </div>
+              {% endfor %}
           </div>
-          <div class="card">
-            <img data-src="holder.js/100px280/thumb" alt="Card image cap">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-          </div>
-          <div class="card">
-            <img data-src="holder.js/100px280/thumb" alt="Card image cap">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-          </div>
-
-          <div class="card">
-            <img data-src="holder.js/100px280/thumb" alt="Card image cap">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-          </div>
-          <div class="card">
-            <img data-src="holder.js/100px280/thumb" alt="Card image cap">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-          </div>
-          <div class="card">
-            <img data-src="holder.js/100px280/thumb" alt="Card image cap">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-          </div>
-
-          <div class="card">
-            <img data-src="holder.js/100px280/thumb" alt="Card image cap">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-          </div>
-          <div class="card">
-            <img data-src="holder.js/100px280/thumb" alt="Card image cap">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-          </div>
-          <div class="card">
-            <img data-src="holder.js/100px280/thumb" alt="Card image cap">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-          </div>
+        {% else %}
+        <div class="row" id="place_for_photos">
         </div>
-
+        {% endif %}
       </div>
     </div>
 

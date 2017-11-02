@@ -92,7 +92,7 @@ class Home(Resource):
 
         links = response.json()
 
-        return flask.make_response(flask.render_template("home.html", userEmail=user, serverResponse=response))
+        return flask.make_response(flask.render_template("home.html", userEmail=user, linkList=links['Links']))
 
 class Search(Resource):
     def get(self):
@@ -102,7 +102,12 @@ class Search(Resource):
         for keyword in keywords:
             tag_list.append(keyword)
 
-        return flask.render_template('tags.html', tags=tag_list)
+        headers = {'Content-Type': 'application/json'}
+        data = json.dumps({'keywords': tag_list, 'username': flask.session['username']})
+        response = requests.post("http://%s/filter" % http_server, data = data, headers = headers)
+        links = response.json()
+
+        return flask.render_template('tags.html', tags=tag_list, linkList=links['Links'])
 
 class Upload(Resource):
     def post(self):
