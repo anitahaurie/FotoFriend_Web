@@ -1,9 +1,9 @@
 import flask
 import httplib2
 import uuid
-import http.client
 import requests
 import os
+import json
 
 from flask_restful import Resource, Api
 from flask_bootstrap import Bootstrap
@@ -85,21 +85,12 @@ class Home(Resource):
         authenticate()
         user = flask.session['username']
 
-        # Connect HTTP
-        conn = http.client.HTTPConnection(http_server)
+        # Connect to the user's MongoDB collection
+        headers = {'Content-Type': 'application/json'}
+        data = json.dumps({'username': user})
+        response = requests.post("http://%s/login" % http_server, data = data, headers = headers)
 
-        # Make request
-        conn.request("GET", "/")
-
-        # Get response
-        try:
-            response = conn.getresponse()
-            response = response.read().decode()
-        except:
-            response = ""
-
-        # Close connection
-        conn.close()
+        links = response.json()
 
         return flask.make_response(flask.render_template("home.html", userEmail=user, serverResponse=response))
 
