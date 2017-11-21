@@ -6,9 +6,15 @@ function search() {
         list.push($.trim($(this).find('span').remove().end().text()));
     });
 
-    list.push(text);
+    if (text)
+        list.push(text.toLowerCase());
+    else
+        return;
 
-    var param = { keyword: list };
+    var param = {
+        keyword: list.filter(function (item, pos) {
+            return list.indexOf(item) == pos;
+        }) };
 
     $.ajax({
         url: '/search',
