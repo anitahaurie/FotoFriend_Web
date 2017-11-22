@@ -8,8 +8,9 @@ function search() {
 
     if (text)
         list.push(text.toLowerCase());
-    else
-        return;
+
+    if (!list)
+        list.push("default");
 
     var param = {
         keyword: list.filter(function (item, pos) {

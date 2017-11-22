@@ -4,7 +4,7 @@
 {% for tag in tags %}
 <div class="none">
 {{tag}}
-<button type="button" class="close" aria-label="Close" onclick="remove(this)">
+<button type="button" class="close" aria-label="Close" onclick="remove(this); search();">
 <span aria-hidden="true">&times;</span>
 </button>
 </div>
