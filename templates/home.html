@@ -82,7 +82,7 @@
                 </div>
               </div>
             </div>
-          <a href="#" class="btn btn-secondary">Delete an image</a>
+          <a href="/delete" class="btn btn-secondary">Delete an image</a>
         </p>
       </div>
     </section>
@@ -94,6 +94,7 @@
               {% for link in linkList %}
               <div class="card">
                   <img data-src="holder.js/100px280/thumb" src="{{link}}" style="height: 280px; width: 100%; display: block;" data-holder-rendered="false">
+                  <span class="close-button" onclick="deleteImage(this)">&times;</span>
               </div>
               {% endfor %}
           </div>
@@ -122,6 +123,7 @@
     <script src="static/js/holder.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>
     <script src="static/js/search.js"></script>
+    <script src="static/js/deleteImage.js"></script>
     <script>
       $(function () {
         Holder.addTheme("thumb", { background: "#55595c", foreground: "#eceeef", text: "Thumbnail" });
