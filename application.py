@@ -141,12 +141,26 @@ class Upload(Resource):
             flask.flash("Only jpeg, jpg and png files are supported. Please try again.")
             return flask.redirect(flask.url_for('home'))
 
+class Delete(Resource):
+    def get(self):
+        url = flask.request.args.get("url")
+
+        headers = {'Content-Type': 'application/json'}
+        data = json.dumps({'url': url, 'username': flask.session['username']})
+        response = requests.post("http://%s/deleteImage" % http_server, data = data, headers = headers)
+
+        if response.status_code == 200:
+            flask.flash("Your delete was successful!")
+
+        return 200
+
 api.add_resource(Index, '/')
 api.add_resource(oAuth, '/oAuth')
 api.add_resource(LogOut, '/logout')
 api.add_resource(Home, '/home')
 api.add_resource(Search, '/search')
 api.add_resource(Upload, '/upload')
+api.add_resource(Delete, '/delete')
 
 if __name__ == '__main__':
     application.debug = False

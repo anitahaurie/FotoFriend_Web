@@ -33,11 +33,13 @@ body {
 }
 
 .card {
+  position: relative;
   float: left;
   width: 33.333%;
   padding: .75rem;
   margin-bottom: 2rem;
   border: 0;
+  display: inline-block;
 }
 
 .card > img {
@@ -135,4 +137,22 @@ footer {
     font-size: inherit;
     margin-left: 0.5rem;
     margin-top: 0.25rem;
+}
+
+.card .close-button {
+    position: absolute;
+    top: 5px;
+    z-index: 100;
+    background-color: #FFF;
+    padding: 0px 5px 0px 5px;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: .2;
+    text-align: center;
+    font-size: 22px;
+}
+
+.card:hover .close-button {
+    opacity: 1;
 }
