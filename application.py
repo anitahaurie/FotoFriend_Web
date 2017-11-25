@@ -4,6 +4,7 @@ import uuid
 import requests
 import os
 import json
+import base64
 
 from flask_restful import Resource, Api
 from flask_bootstrap import Bootstrap
@@ -129,7 +130,8 @@ class Upload(Resource):
             #Send file to Backend Server
             file.save(os.path.join(application.config['UPLOAD_FOLDER'], file.filename))
 
-            response = requests.post("http://%s/storeImage" % http_server, files={'file': open(os.path.join(application.config['UPLOAD_FOLDER'], file.filename), 'rb'), 'username': flask.session['username']})
+            image = open(os.path.join(application.config['UPLOAD_FOLDER'], file.filename), 'rb').read()
+            response = requests.post("http://%s/storeImage" % http_server, data=dict(file=base64.b64encode(image), filename=file.filename, username=flask.session['username']))
 
             os.remove(os.path.join(application.config['UPLOAD_FOLDER'], file.filename))
 
