@@ -9,3 +9,4 @@ oauth2client
 uritemplate
 urllib3
 requests
+fotofriend
