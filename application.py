@@ -11,9 +11,12 @@ from flask_bootstrap import Bootstrap
 from apiclient import discovery
 from oauth2client import client
 
+import fotofriend
+
 #UPLOAD_FOLDER ='C:\\Users\\thoma\\Documents' #Test
 UPLOAD_FOLDER = '' #Location depends where the photos will stored
 ALLOWED_EXTENSIONS = set(['jpeg', 'jpg', 'png'])
+DEV = "FOTOFRIEND_DEV"
 
 application = flask.Flask(__name__)
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -21,11 +24,8 @@ Bootstrap(application)
 api = Api(application)
 application.secret_key = str(uuid.uuid4())
 
-# For cloud server
-http_server = "fotofriendserver.us-west-2.elasticbeanstalk.com"
-
 #For local server (Testing)
-#http_server = "127.0.0.1:80"
+HTTP_SERVER = "127.0.0.1:80"
 
 def authenticate():
     #If no credentials, prompt for info
@@ -86,12 +86,16 @@ class Home(Resource):
         authenticate()
         user = flask.session['username']
 
-        # Connect to the user's MongoDB collection
-        headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'username': user})
-        response = requests.post("http://%s/login" % http_server, data = data, headers = headers)
+        links = []
 
-        links = response.json()
+        # FOR DEVELOPMENT
+        if DEV in os.environ:
+            headers = {'Content-Type': 'application/json'}
+            data = json.dumps({'username': user})
+            response = requests.post("http://%s/login" % HTTP_SERVER, data = data, headers = headers)
+            links = response.json()
+        else:
+            links = fotofriend.login(user)
 
         return flask.make_response(flask.render_template("home.html", userEmail=user, linkList=links['Links']))
 
@@ -99,16 +103,18 @@ class Search(Resource):
     def get(self):
         keywords = flask.request.args.getlist("keyword")
 
-        tag_list = []
-        for keyword in keywords:
-            tag_list.append(keyword)
+        links = []
+        user = flask.session['username']
 
-        headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'keywords': tag_list, 'username': flask.session['username']})
-        response = requests.post("http://%s/filter" % http_server, data = data, headers = headers)
-        links = response.json()
+        if DEV in os.environ:
+            headers = {'Content-Type': 'application/json'}
+            data = json.dumps({'keywords': keywords, 'username': user})
+            response = requests.post("http://%s/filter" % HTTP_SERVER, data = data, headers = headers)
+            links = response.json()
+        else:
+            links = fotofriend.filter(keywords, user)
 
-        return flask.render_template('tags.html', tags=tag_list, linkList=links['Links'])
+        return flask.render_template('tags.html', tags=keywords, linkList=links['Links'])
 
 class Upload(Resource):
     def post(self):
@@ -126,34 +132,51 @@ class Upload(Resource):
             return flask.redirect(flask.url_for('home'))
 
         #Add the picture to the path where pictures will be stored
-        if file and checkFileExtension(file.filename):
-            #Send file to Backend Server
-            file.save(os.path.join(application.config['UPLOAD_FOLDER'], file.filename))
+        #Send file to Backend Server
+        file.save(os.path.join(application.config['UPLOAD_FOLDER'], file.filename))
+        image = open(os.path.join(application.config['UPLOAD_FOLDER'], file.filename), 'rb').read()
 
-            image = open(os.path.join(application.config['UPLOAD_FOLDER'], file.filename), 'rb').read()
-            response = requests.post("http://%s/storeImage" % http_server, data=dict(file=base64.b64encode(image), filename=file.filename, username=flask.session['username']))
+        message = None
+        user = flask.session['username']
 
-            os.remove(os.path.join(application.config['UPLOAD_FOLDER'], file.filename))
+        if DEV in os.environ:
+            response = requests.post("http://%s/storeImage" % HTTP_SERVER, data=dict(file=base64.b64encode(image), filename=file.filename, username=user))
 
             if response.status_code == 200:
-                flask.flash("Your upload was successful!")
-
-            return flask.redirect(flask.url_for('home'))
+                message = "Your upload was successful!"
+            else:
+                message = "Only jpeg, jpg and png files are supported. Please try again."
         else:
-            flask.flash("Only jpeg, jpg and png files are supported. Please try again.")
-            return flask.redirect(flask.url_for('home'))
+            code = fotofriend.uploadImage(image, file.filename, user)
+            if code == 1:
+                message = "Your upload was successful!"
+            else:
+                message = "Only jpeg, jpg and png files are supported. Please try again."
+
+        os.remove(os.path.join(application.config['UPLOAD_FOLDER'], file.filename))
+
+        flask.flash(message)
+        return flask.redirect(flask.url_for('home'))
 
 class Delete(Resource):
     def get(self):
         url = flask.request.args.get("url")
+        user = flask.session['username']
 
-        headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'url': url, 'username': flask.session['username']})
-        response = requests.post("http://%s/deleteImage" % http_server, data = data, headers = headers)
+        message = None
+        if DEV in os.environ:
+            headers = {'Content-Type': 'application/json'}
+            data = json.dumps({'url': url, 'username': user})
+            response = requests.post("http://%s/deleteImage" % HTTP_SERVER, data = data, headers = headers)
 
-        if response.status_code == 200:
-            flask.flash("Your delete was successful!")
+            if response.status_code == 200:
+                message = "Your delete was successful!"
+        else:
+            code = fotofriend.deleteImage(url, user)
+            if code == 200:
+                message = "Your delete was successful!"
 
+        flask.flash(message)
         return 200
 
 api.add_resource(Index, '/')
