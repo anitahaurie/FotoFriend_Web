@@ -19,6 +19,7 @@ body {
 
 .jumbotron-heading {
   font-weight: 300;
+  margin: 25px;
 }
 
 .jumbotron .container {
@@ -64,6 +65,7 @@ footer {
     text-shadow: none; /* Prevent inheritance from `body` */
     background-color: #11987a;
     border: .05rem solid #fff;
+    margin: 10px;
 }
 
 .masthead-brand {
